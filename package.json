@@ -1,0 +1,22 @@
+{
+  "name": "tranche",
+  "version": "1.0.0",
+  "description": "A rules-based lump-sum deployment system. Removes emotion from the question every investor asks: when do I deploy my cash?",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": ["investing", "dollar-cost-averaging", "tranche", "behavioral-finance", "react"],
+  "author": "Mayank Joshi",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.8"
+  }
+}
