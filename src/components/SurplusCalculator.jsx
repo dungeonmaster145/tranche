@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { computeSurplus, formatMoney, DEFAULT_CONFIG } from "../lib/algorithm.js";
+import CountUp from "./CountUp.jsx";
 
 /**
  * SurplusCalculator — Step 1 of the algorithm.
@@ -104,9 +105,12 @@ export default function SurplusCalculator({ onLock }) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, borderTop: "1px dashed var(--line)", paddingTop: 16, marginTop: 18 }}>
         <div style={{ fontFamily: "var(--mono)" }} aria-live="polite">
           <span style={{ fontSize: 12, color: "var(--muted)" }}>D = </span>
-          <span style={{ fontSize: 26, fontWeight: 700, color: D > 0 ? "var(--green)" : "var(--red)" }}>
-            {formatMoney(D, cfg)}
-          </span>
+          <CountUp
+            value={D}
+            format={(n) => formatMoney(n, cfg)}
+            className={"d-readout " + (D > 0 ? "pos" : "neg")}
+            style={{ fontSize: 28 }}
+          />
         </div>
         <button className="btn btn-primary" onClick={lock}>Lock in plan</button>
       </div>

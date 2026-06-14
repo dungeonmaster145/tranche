@@ -102,17 +102,17 @@ export default function App() {
         </div>
       </header>
 
-      {!onboarded && <Onboarding onDone={finishOnboarding} />}
+      {!onboarded && <div className="screen" key="onboard"><Onboarding onDone={finishOnboarding} /></div>}
 
       {onboarded && !plan && (
-        <>
+        <div className="screen" key="calc">
           <SurplusCalculator onLock={lockPlan} />
           <Learn />
-        </>
+        </div>
       )}
 
       {onboarded && plan && (
-        <>
+        <div className="screen" key="ledger">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
             <div style={{ fontFamily: "var(--mono)", fontSize: 14 }}>
               <span style={{ color: "var(--muted)" }}>Locked plan · D = </span>
@@ -180,7 +180,7 @@ export default function App() {
             your pre-written rules; it does not predict markets. Educational
             software — not financial, tax, or investment advice.
           </div>
-        </>
+        </div>
       )}
     </div>
   );
