@@ -1,35 +1,47 @@
 # Roadmap
 
-## v1.0 — current
-Web app, manual closing-level entry, simulation mode, localStorage persistence,
-configurable tranche splits, remittance threshold tracker. Zero backend.
+## v1.0 — shipped
+Web app: onboarding with interactive crash simulator, surplus (D) calculator
+with configurable tranche rules, drawdown gauge, manual market readings +
+simulation mode, tranche board with deploy tracking, LRS/TCS tracker,
+localStorage persistence. Zero backend.
 
-## v1.1 — hardening
-- Unit tests for `src/lib/algorithm.js` (Vitest) — the pure core makes this trivial
-- Pluggable market-data providers behind a `getReading()` interface in
-  `src/lib/market.js`: manual (default), plus optional adapters for any
-  quotes API the user configures with their own key. Closing levels only.
-- Multiple plans (e.g., a maturing insurance payout as a second D)
-- Export/import state as JSON (backup before clearing a browser)
-- Currency/locale presets beyond INR
+## v1.1 — shipped in this build
+- **Education layer** (`src/lib/education.js`, `Learn.jsx`): concept cards
+  (why timing fails, what drawdowns mean, savings rate, hidden concentration)
+  and an expandable glossary. Strictly educational — explains concepts and the
+  user's own situation, never issues buy/sell instructions.
+- **Reminders** (`src/lib/notifications.js`, `Reminders.jsx`): permission flow,
+  daily/weekly reading reminders, and backstop-date warnings. On web these are
+  best-effort (delivered on next open); on mobile they fire on schedule.
 
-## v2.0 — mobile (Play Store / App Store)
-Two viable paths, in order of effort:
+## v1.2 — mobile app (Play Store / App Store)
+Capacitor wrap of this exact build with native on-device notifications. Two
+files change (`storage.js` → Preferences, `notifications.js` → LocalNotifications).
+Full steps in docs/MOBILE.md. Local notifications need no server.
 
-1. **Capacitor wrap (recommended first)** — the existing web app ships
-   inside a native shell with minimal changes. Swap `storage.js` for
-   Capacitor Preferences. Local scheduled notifications ("record today's
-   reading", backstop-date reminders) work on-device without any server.
-2. **React Native rewrite** — only if native UI becomes necessary.
-   `algorithm.js` ports unchanged; that is why it is pure.
+## v2.0 — always-on alert backend (Java / Spring Boot)
+The only feature that genuinely needs a server: watching the market while the
+user is away and pushing "the index closed below your −10% trigger."
 
-True push alerts on trigger levels ("the market closed below −10%") require
-either a small backend that watches closes, or — more honestly — the user's
-broker price alerts, which already exist and are free. v2 ships with local
-reminders and keeps broker alerts as the real-time layer.
+Planned stack (owner is a Java developer — built in Spring Boot for
+maintainability):
+- **Spring Boot** REST service; user plans, tranches, and trigger levels in
+  **PostgreSQL** via **Spring Data JPA**.
+- **`@Scheduled`** job polling a market-data provider for index closes; on a
+  crossed trigger, enqueue a push.
+- **Firebase Cloud Messaging** for delivery to the Capacitor app (FCM token
+  registered from the device).
+- Auth via Spring Security (email magic-link or OAuth); per-user isolation.
+- The app keeps working fully offline without this service — the backend is
+  additive, only for real-time push.
+
+Cost/ops note: this is the stage with monthly bills (hosting, market data) and
+uptime responsibility. Reach it when real users ask for it, not before. India:
+confirm the SEBI line — generic education is fine; personalized investment
+*advice* for compensation is regulated (RIA registration).
 
 ## Non-goals, permanently
-- Predicting markets
-- Telling anyone "the best time"
-- Trading integrations that execute automatically — a human marks every
-  deployment by design; friction at the moment of execution is a feature
+- Predicting markets or telling anyone "the best time."
+- Auto-executing trades — a human marks every deployment by design.
+- Personalized buy/sell recommendations (education and self-reflection only).

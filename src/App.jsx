@@ -7,6 +7,9 @@ import DrawdownGauge from "./components/DrawdownGauge.jsx";
 import MarketCheck from "./components/MarketCheck.jsx";
 import TrancheBoard from "./components/TrancheBoard.jsx";
 import RemitTracker from "./components/RemitTracker.jsx";
+import Learn from "./components/Learn.jsx";
+import Reminders from "./components/Reminders.jsx";
+import { deliverDueReminders } from "./lib/notifications.js";
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -15,6 +18,7 @@ export default function App() {
   const [reading, setReading] = useState(null); // { current, ath, drawdown, at }
   const [remitted, setRemitted] = useState("");
   const [simDD, setSimDD] = useState(null); // simulation drawdown or null
+  const [cadence, setCadence] = useState("off");
 
   useEffect(() => {
     (async () => {
@@ -24,8 +28,11 @@ export default function App() {
         setPlan(s.plan || null);
         setReading(s.reading || null);
         setRemitted(s.remitted ?? "");
+        setCadence(s.cadence ?? "off");
       }
       setReady(true);
+      // Web fallback: surface any reminders that came due while away.
+      deliverDueReminders();
     })();
   }, []);
 
@@ -35,8 +42,11 @@ export default function App() {
       plan,
       reading,
       remitted,
+      cadence,
       ...patch,
     });
+
+  const changeCadence = (value) => { setCadence(value); persist({ cadence: value }); };
 
   const finishOnboarding = () => { setOnboarded(true); persist({ onboarded: true }); };
 
@@ -94,7 +104,12 @@ export default function App() {
 
       {!onboarded && <Onboarding onDone={finishOnboarding} />}
 
-      {onboarded && !plan && <SurplusCalculator onLock={lockPlan} />}
+      {onboarded && !plan && (
+        <>
+          <SurplusCalculator onLock={lockPlan} />
+          <Learn />
+        </>
+      )}
 
       {onboarded && plan && (
         <>
@@ -153,6 +168,10 @@ export default function App() {
             remitted={remitted}
             onChange={(v) => { setRemitted(v); persist({ remitted: v }); }}
           />
+
+          <Reminders plan={plan} cadence={cadence} onCadence={changeCadence} />
+
+          <Learn />
 
           <div className="footnote">
             Anti-rules: triggers fire on closing levels only · never deploy floor
